@@ -6,7 +6,7 @@ Udemy - React 16 - from Zero to Hero - Online store
 - npm install bootstrap@4.1.2
 -- index.js > add : import 'bootstrap/dist/css/bootstrap.css'
 - npm install @fortawesome/fontawesome-free@5.6.1
--- index.js > add : import '@fortawesome/fontawesome-free/css/all.css"'
+-- index.js > add : import '@fortawesome/fontawesome-free/css/all.css'
 - npm install react-redux@6.0.0
 - npm install react-router-dom@4.3.1
 - npm install axios@0.18.0
