@@ -1,6 +1,7 @@
 import React,{useRef} from 'react';
 import logo from './logo.svg';
 import './App.css';
+import {storeHttpResource, getStore} from './store';
 
 function App() {
   const resultRef=useRef(null);
@@ -24,6 +25,13 @@ function App() {
       console.error(error);
     });
   }
+  let cnt=1;
+  const checkStoreLoad=()=> {
+    console.log("cnt:"+cnt)
+    storeHttpResource("api/products/byid/"+cnt);
+    cnt++;
+    console.log(getStore().httpResources);
+  }
   return (
     <div className="App">
       <header className="App-header">
@@ -33,7 +41,7 @@ function App() {
         </p>
         <div>This is the example of React Nodejs.</div>
         <div ref={resultRef}></div>
-        
+        <button onClick={checkStoreLoad}>Check</button><br />
       </header>
     </div>
   );

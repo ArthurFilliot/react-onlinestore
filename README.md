@@ -14,6 +14,12 @@ Udemy - React 16 - from Zero to Hero - Online store
 - npm install apollo-boost@0.1.22
 - npm install react-apollo@2.3.2
 
+- npm install redux
+- npm install redux-actions
+- npm install redux-effects
+- npm install redux-thunk
+- npm install redux-effects-fetch
+
 # Server libraries
 
 - npm install --save-dev json-server@0.14.2
@@ -25,3 +31,5 @@ Udemy - React 16 - from Zero to Hero - Online store
 - npm install --save-dev chokidar@2.0.4
 - npm install --save-dev npm-run-all@4.1.3
 - npm install --save-dev connect-history-api-fallback@1.5.0
+
+
