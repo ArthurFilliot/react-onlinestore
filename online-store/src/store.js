@@ -1,7 +1,7 @@
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { createAction,handleActions } from 'redux-actions';
 import thunk from 'redux-thunk';
-import axios from 'axios';
+import {api} from './apiclient.js';
 
 const initialState = {
     httpResources:  { 
@@ -21,8 +21,8 @@ const httpResourcesReducer = handleActions(
             uris.unshift(uri);
             resources.set(uri,obj)
             while (uris.length > 5) { // LRU of size 5
-                uris.pop()
-                resources.delete(uri)
+                const poped = uris.pop()
+                resources.delete(poped)
             }
             return state
         }
@@ -40,9 +40,9 @@ const store = createStore(rootReducer, applyMiddleware(thunk));
 function makeCall(uri) {
     return function (dispatch) {
         console.log("GET request")
-        return axios.get(uri).then(
+        return api().get(uri).then(
             response => dispatch(storeResource({'uri':uri,'data':response.data})),
-            error => console.log("error getting uri : " + uri + " - error : " + error)
+            error => dispatch(storeResource({'uri':uri,'data':{error:error}}))
         );
     };
 }
@@ -55,10 +55,15 @@ function storeHttpResourceSteps(uri) {
         }
         return dispatch(makeCall(uri))
     };
-  }
+}
 
 export function storeHttpResource(uri) {
     return store.dispatch(storeHttpResourceSteps(uri));
+}
+
+export function storeHttpResourceNSubscribe(uri,callback) {
+    storeHttpResource(uri);
+    return store.subscribe(callback);
 }
 
 export function getStore() {

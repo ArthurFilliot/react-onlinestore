@@ -1,50 +1,91 @@
-import React,{useRef} from 'react';
+import React,{Component, useRef, useState, useEffect} from 'react';
 import logo from './logo.svg';
 import './App.css';
-import {storeHttpResource, getStore} from './store';
+import {storeHttpResource, getStore, storeHttpResourceNSubscribe} from './store';
 
-function App() {
-  const resultRef=useRef(null);
-  const getServerData=()=>{
-    fetch("/getDataFromServer", {
-      method: "POST", // or 'PUT'
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({id:123})
-    })
-    .then(response => {
-      return response.json();
-    })
-    .then(result => {
-      if(resultRef.current!=null){
-        resultRef.current.innerHTML=result.content;
-      }
-    })
-    .catch(error => {
-      console.error(error);
-    });
+export default class App extends Component {
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      nbTry: 1
+    }
   }
-  let cnt=1;
-  const checkStoreLoad=()=> {
-    console.log("cnt:"+cnt)
-    storeHttpResource("api/products/byid/"+cnt);
-    cnt++;
-    console.log(getStore().httpResources);
+
+  getNbTry=()=> {
+    return this.state.nbTry;
   }
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          That is Client side code in React. <a href='javascript:void(0)' onClick={getServerData}>Click Here</a>
-        </p>
-        <div>This is the example of React Nodejs.</div>
-        <div ref={resultRef}></div>
-        <button onClick={checkStoreLoad}>Check</button><br />
-      </header>
-    </div>
-  );
+
+  setNbTry=(nb)=> {
+    this.setState({nbTry:this.state.nbTry+1})
+  }
+
+  initCheckStoreLoad=()=>{
+    const thiscomp = this;
+    let cnt=1;
+    return function() {
+      cnt=cnt>10?1:cnt;
+      console.log("nbTry:"+thiscomp.getNbTry()+" - cnt:"+cnt)
+      storeHttpResource("api/products/byid/"+cnt);
+      cnt++;
+      thiscomp.setNbTry(thiscomp.getNbTry()+1);
+      console.log(getStore().httpResources);
+    }
+  };
+  checkStoreLoad=this.initCheckStoreLoad(this);
+
+  render=() => {
+    return (
+      <div className="App">
+        <header className="App-header">
+          <img src={logo} className="App-logo" alt="logo" />
+          <p>
+            That is Client side code in React.
+          </p>
+          <div>This is the example of React Nodejs.</div>
+          <button onClick={this.checkStoreLoad}>Check</button><br />
+          <ProductComp id="1" />
+          <ProductComp id="2" />
+          <ProductComp id="3" />
+          <ProductComp id="4" />
+          <ProductComp id="5" />
+          <ProductComp id="6" />
+          <ProductComp id="7" />
+          <ProductComp id="8" />
+          <ProductComp id="9" />
+          <ProductComp id="10" />
+        </header>
+      </div>
+    )
+  }
+
 }
 
-export default App;
+const ProductComp=(args)=> {
+  const [obj, setObj] = useState(null);
+  const uri = "api/products/byid/"+args.id
+  
+  useEffect(() => {
+    let unsubscribe;
+    function retrieveObjFromStore() {
+      console.log(getStore().httpResources.resources)
+      const obj = getStore().httpResources.resources.get(uri);
+      if (obj) {
+        setObj(obj);
+        if (unsubscribe) unsubscribe();
+      }
+    }
+    retrieveObjFromStore()
+    if (obj===null) {
+      unsubscribe = storeHttpResourceNSubscribe(uri,retrieveObjFromStore)
+    }
+    
+  })
+
+  if (obj===null) {
+    return <div>Chargement...</div>
+  }
+  return <div>
+    {obj.name}
+  </div>
+}

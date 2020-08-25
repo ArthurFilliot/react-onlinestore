@@ -19,6 +19,7 @@ Udemy - React 16 - from Zero to Hero - Online store
 - npm install redux-effects
 - npm install redux-thunk
 - npm install redux-effects-fetch
+- npm install axios-cache-adapter
 
 # Server libraries
 
@@ -31,5 +32,7 @@ Udemy - React 16 - from Zero to Hero - Online store
 - npm install --save-dev chokidar@2.0.4
 - npm install --save-dev npm-run-all@4.1.3
 - npm install --save-dev connect-history-api-fallback@1.5.0
+
+
 
 

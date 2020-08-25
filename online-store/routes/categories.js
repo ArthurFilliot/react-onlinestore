@@ -32,10 +32,12 @@ router
         var id = parseInt(req.params.id);
         var obj = idxbyid.get(id);
         res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Cache-Control','max-age=60');
         res.send(obj);
     })
     .get('/', function(req,res) {
         res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Cache-Control','max-age=60');
         res.send(synopsis);
     })
 module.exports = router;

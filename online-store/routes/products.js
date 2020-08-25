@@ -44,10 +44,12 @@ router
         var id = parseInt(req.params.id);
         var obj = idxbyid.get(id);
         res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Cache-Control','max-age=60');
         res.send(obj);
     })
     .get('/byname/:pattern', function(req,res) {
         res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Cache-Control','no-cache');
         var pattern = "^.*"+req.params.pattern.toLowerCase()+".*$"
         console.log("pattern :" +pattern)
         var regexp = new RegExp(pattern)
