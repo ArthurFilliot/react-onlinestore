@@ -20,7 +20,7 @@ const httpResourcesReducer = handleActions(
             const resources = state.resources
             uris.unshift(uri);
             resources.set(uri,obj)
-            while (uris.length > 5) { // LRU of size 5
+            while (uris.length > 20) { // LRU of size 20
                 const poped = uris.pop()
                 resources.delete(poped)
             }
@@ -37,33 +37,50 @@ const rootReducer = combineReducers({httpResources: httpResourcesReducer});
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
-function makeCall(uri) {
-    return function (dispatch) {
-        console.log("GET request")
-        return api().get(uri).then(
-            response => dispatch(storeResource({'uri':uri,'data':response.data})),
-            error => dispatch(storeResource({'uri':uri,'data':{error:error}}))
-        );
-    };
+export function getNStoreNSet(uri,obj,setObj) {
+    const mobj = getStore().httpResources.resources.get(uri);
+    if (mobj) {
+        setObj(mobj);
+        return;
+    }
+    store.dispatch(()=> {
+        api().get(uri).then(
+            response => store.dispatch(storeResource({'uri':uri,'data':response.data})),
+            error => store.dispatch(storeResource({'uri':uri,'data':{error:error}}))
+        )
+    })
+    let unsubscribe;
+    unsubscribe = store.subscribe(()=>{
+        //console.log(getStore().httpResources.resources)
+        const mobj = getStore().httpResources.resources.get(uri);
+        if (mobj) {
+            setObj(mobj);
+            unsubscribe();
+        }
+    })
 }
 
-function storeHttpResourceSteps(uri) {
-    return function (dispatch, getState) {
-        console.log(getState())
-        if (getState().httpResources.resources.get(uri)) { // check the resource is already loaded
-            return Promise.resolve();
-        }
-        return dispatch(makeCall(uri))
-    };
-}
+
+
+
+
+
+
+
 
 export function storeHttpResource(uri) {
-    return store.dispatch(storeHttpResourceSteps(uri));
-}
-
-export function storeHttpResourceNSubscribe(uri,callback) {
-    storeHttpResource(uri);
-    return store.subscribe(callback);
+    return store.dispatch(()=> {
+        console.log(store.getState())
+        if (store.getState().httpResources.resources.get(uri)) { // check the resource is already loaded
+            return Promise.resolve();
+        }
+        return store.dispatch(()=>
+            api().get(uri).then(
+                response => store.dispatch(storeResource({'uri':uri,'data':response.data})),
+                error => store.dispatch(storeResource({'uri':uri,'data':{error:error}}))
+            )
+        )
+    })
 }
 
 export function getStore() {

@@ -1,7 +1,8 @@
-import React,{Component, useRef, useState, useEffect} from 'react';
-import logo from './logo.svg';
+import React,{Component, useState, useEffect} from 'react';
 import './App.css';
-import {storeHttpResource, getStore, storeHttpResourceNSubscribe} from './store';
+import {storeHttpResource, getStore, getNStoreNSet} from './store';
+import { useLocation } from 'react-router';
+import {BrowserRouter, Route, Switch, Redirect, Link} from 'react-router-dom'
 
 export default class App extends Component {
 
@@ -36,56 +37,86 @@ export default class App extends Component {
 
   render=() => {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            That is Client side code in React.
-          </p>
-          <div>This is the example of React Nodejs.</div>
-          <button onClick={this.checkStoreLoad}>Check</button><br />
-          <ProductComp id="1" />
-          <ProductComp id="2" />
-          <ProductComp id="3" />
-          <ProductComp id="4" />
-          <ProductComp id="5" />
-          <ProductComp id="6" />
-          <ProductComp id="7" />
-          <ProductComp id="8" />
-          <ProductComp id="9" />
-          <ProductComp id="10" />
-        </header>
-      </div>
+      // <button onClick={this.checkStoreLoad}>Check</button><br />
+      <BrowserRouter>
+        <Switch>
+          <Route path="/shop/category/:categoryid" render={routeProps => <Shop {...routeProps} /> } />
+          <Route path="/shop" render={routeProps => <Shop {...routeProps} /> } />
+          <Redirect to="/shop"/>
+        </Switch>
+      </BrowserRouter>
     )
   }
 
 }
 
-const ProductComp=(args)=> {
-  const [obj, setObj] = useState(null);
-  const uri = "api/products/byid/"+args.id
-  
+const Product=(args)=> {
+  const [product, setProduct] = useState(null);  
+  useEffect(
+    () => getNStoreNSet("/api/products/byid/"+args.id,product,setProduct),
+    [args.id, product])
+
+  if (product===null) {
+    return <div className="card m-1 p-1 bg-light">Chargement...</div>
+  }
+  return <div className="card m-1 p-1 bg-light">
+    <h4>{product.name}</h4>
+    <span className="badge badge-pill badge-primary float-right">
+      ${product.price.toFixed(2)}
+    </span>
+    <div className="card-text bg-white p-1">
+      {product.shortdesc}
+    </div>
+  </div>
+}
+
+const ProductList=(args) => {
+  if (args.products==null) {
+    return <h4 className="p-2">No Products</h4>
+  }
+  return args.products.map(p =>
+    <Product key={p} id={p} />
+  )
+}
+
+const CategoryNavigation=(args)=> {
+  return <React.Fragment>
+    <Link className="btn btn-secondary btn-block"
+      to={args.baseurl}>All</Link>
+    {args.categories && args.categories.map(cat=> 
+      <Link className="btn btn-secondary btn-block"
+        key={cat.id}
+        to={`${args.baseurl}/category/${cat.id}`}>
+          {cat.name}
+      </Link>
+    )}
+  </React.Fragment>
+}
+
+const Shop=(args)=> {
+  const [categories, setCategories] = useState(null);
+  const [category, setCategory] = useState(null);
+  useEffect(() => getNStoreNSet("/api/categories",categories,setCategories))
   useEffect(() => {
-    let unsubscribe;
-    function retrieveObjFromStore() {
-      console.log(getStore().httpResources.resources)
-      const obj = getStore().httpResources.resources.get(uri);
-      if (obj) {
-        setObj(obj);
-        if (unsubscribe) unsubscribe();
-      }
-    }
-    retrieveObjFromStore()
-    if (obj===null) {
-      unsubscribe = storeHttpResourceNSubscribe(uri,retrieveObjFromStore)
-    }
-    
+    console.log("load category, prev category:"+(category ? category.id: 'null'))
+    getNStoreNSet("/api/categories/byid/"+args.match.params.categoryid,category,setCategory)
   })
 
-  if (obj===null) {
-    return <div>Chargement...</div>
-  }
-  return <div>
-    {obj.name}
-  </div>
+  console.log(args)
+
+  return <React.Fragment>
+    <nav className="navbar navbar-expand-lg navbar-light bg-dark m-0">
+      <span className="navbar-brand text-light">Online Store</span>
+    </nav>
+    <div className="container-fluid">
+      <div className="row">
+          <div className="col-3 p-2">
+            <CategoryNavigation baseurl="/shop" categories={categories} />
+          </div>
+          <div className="col-9 p-2">
+            {(category!=null) ? <ProductList products={category.itemids} /> : <span>Search by name</span>}
+          </div>
+      </div>
+    </div>
+  </React.Fragment>
 }

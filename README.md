@@ -8,18 +8,18 @@ Udemy - React 16 - from Zero to Hero - Online store
 - npm install @fortawesome/fontawesome-free@5.6.1
 -- index.js > add : import '@fortawesome/fontawesome-free/css/all.css'
 - npm install react-redux@6.0.0
+- npm install react-router
 - npm install react-router-dom@4.3.1
 - npm install axios@0.18.0
+- npm install axios-cache-adapter
 - npm install graphql@14.0.2
 - npm install apollo-boost@0.1.22
 - npm install react-apollo@2.3.2
-
 - npm install redux
 - npm install redux-actions
 - npm install redux-effects
 - npm install redux-thunk
 - npm install redux-effects-fetch
-- npm install axios-cache-adapter
 
 # Server libraries
 
