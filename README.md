@@ -20,6 +20,8 @@ Udemy - React 16 - from Zero to Hero - Online store
 - npm install redux-effects
 - npm install redux-thunk
 - npm install redux-effects-fetch
+- npm install less 
+- npm install bootstrap-less
 
 # Server libraries
 

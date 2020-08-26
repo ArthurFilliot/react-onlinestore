@@ -1,0 +1,5 @@
+{
+    "less.compile": { 
+        "out":"../node_modules/bootstrap-less/bootstrap/index-ext.css"
+    }
+}

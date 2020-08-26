@@ -1,7 +1,6 @@
 import React,{Component, useState, useEffect} from 'react';
 import './App.css';
 import {storeHttpResource, getStore, getNStoreNSet} from './store';
-import { useLocation } from 'react-router';
 import {BrowserRouter, Route, Switch, Redirect, Link} from 'react-router-dom'
 
 export default class App extends Component {
@@ -81,15 +80,16 @@ const ProductList=(args) => {
 
 const CategoryNavigation=(args)=> {
   return <React.Fragment>
-    <Link className="btn btn-secondary btn-block"
-      to={args.baseurl}>All</Link>
-    {args.categories && args.categories.map(cat=> 
-      <Link className="btn btn-secondary btn-block"
-        key={cat.id}
-        to={`${args.baseurl}/category/${cat.id}`}>
-          {cat.name}
-      </Link>
-    )}
+    <Route path={args.baseurl} exact={true} children={routeProps=>
+      <Link className={routeProps.match ? "btn btn-block btn-primary":"btn btn-block btn-secondary"} to={args.baseurl}>All</Link>
+    }/> 
+    
+    {args.categories && args.categories.map(cat=> {
+      const url = args.baseurl+"/category/"+cat.id;
+      return <Route path={url} exact={true} key={cat.id} children={routeProps=>
+        <Link className={routeProps.match ? "btn btn-block btn-primary":"btn btn-block btn-secondary"} to={url}>{cat.name}</Link>
+      }/>
+    })}
   </React.Fragment>
 }
 
