@@ -52,7 +52,7 @@ export default class App extends Component {
 const Product=(args)=> {
   const [product, setProduct] = useState(null);  
   useEffect(
-    () => getNStoreNSet("/api/products/byid/"+args.id,product,setProduct),
+    () => getNStoreNSet(args.rootpath+args.id,product,setProduct),
     [args.id, product])
 
   if (product===null) {
@@ -74,7 +74,7 @@ const ProductList=(args) => {
     return <h4 className="p-2">No Products</h4>
   }
   return args.products.map(p =>
-    <Product key={p} id={p} />
+    <Product key={p} id={p} rootpath={args.rootpath}/>
   )
 }
 
@@ -114,7 +114,7 @@ const Shop=(args)=> {
             <CategoryNavigation baseurl="/shop" categories={categories} />
           </div>
           <div className="col-9 p-2">
-            {(category!=null) ? <ProductList products={category.itemids} /> : <span>Search by name</span>}
+            {(category!=null) ? <ProductList products={category.itemids} rootpath={category.itemsrootpath}/> : <span>Search by name</span>}
           </div>
       </div>
     </div>

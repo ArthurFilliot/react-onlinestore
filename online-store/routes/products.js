@@ -14,7 +14,7 @@ const addOrUpdate = fileFun([
             idxbyid.set(id, obj)
             idxbyname.set(obj.name.toLowerCase(), obj)
         }else {
-            var obj = idxbyid.get(id);
+            let obj = idxbyid.get(id);
             if (obj!=null) {
                 idxbyname.delete(obj.name.toLowerCase())
                 idxbyid.delete(id)
@@ -26,6 +26,8 @@ const remove = fileFun([
             idxbyname.delete(idxbyid.get(id).name.toLowerCase())
             idxbyid.delete(id)
         }]);
+const addHyperMedia = transform([
+    (args, obj) => {if (!obj.uri) obj.uri='/api/products/byid/'+args[0]}]);
 
 chokidar.watch(folderpath, { 
         persistent: true,
@@ -41,8 +43,9 @@ chokidar.watch(folderpath, {
 var router = express.Router();
 router
     .get('/byid/:id', function(req,res) {
-        var id = parseInt(req.params.id);
-        var obj = idxbyid.get(id);
+        let id = parseInt(req.params.id);
+        let obj = idxbyid.get(id);
+        addHyperMedia(obj,obj.id);
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Cache-Control','max-age=60');
         res.send(obj);
@@ -50,13 +53,13 @@ router
     .get('/byname/:pattern', function(req,res) {
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Cache-Control','no-cache');
-        var pattern = "^.*"+req.params.pattern.toLowerCase()+".*$"
+        let pattern = "^.*"+req.params.pattern.toLowerCase()+".*$"
         console.log("pattern :" +pattern)
-        var regexp = new RegExp(pattern)
-        var results = 
+        let regexp = new RegExp(pattern)
+        let results = 
             Array.from(idxbyname)
                 .filter(entry => regexp.test(entry[0]))
-                .map(entry=>entry[1]);
+                .map(entry=>addHyperMedia(entry[1],entry[1].id));
         res.send(results);
     })
 module.exports = router;

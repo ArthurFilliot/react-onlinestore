@@ -14,6 +14,9 @@ const addOrUpdate = fileFun([
 const remove = fileFun([
         (id, obj) => idxbyid.delete(id),
         (id, obj) => synopsis = synopsis.filter(elem => elem.id!==id)]);
+const addHyperMedia = transform([
+    (args, obj) => {if (!obj.uri) obj.uri='/api/categories/byid/'+args[0]},
+    (args, obj) => {if (!obj.itemsrootpath) obj.itemsrootpath='/api/products/byid/'}]);
 
 chokidar.watch(folderpath, { 
         persistent: true,
@@ -31,6 +34,7 @@ router
     .get('/byid/:id', function(req,res) {
         var id = parseInt(req.params.id);
         var obj = idxbyid.get(id);
+        addHyperMedia(obj,obj.id);
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Cache-Control','max-age=60');
         res.send(obj);
@@ -38,6 +42,8 @@ router
     .get('/', function(req,res) {
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Cache-Control','max-age=60');
+        synopsis
+            .map(obj => addHyperMedia(obj,obj.id));
         res.send(synopsis);
     })
 module.exports = router;

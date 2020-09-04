@@ -25,4 +25,11 @@ module.exports = function() {
             });
         }
     }
+
+    this.transform = function transform(mappings) {
+        return function(obj,args) {
+            mappings.forEach(mapping => mapping(args,obj));
+            return obj;
+        }
+    }
 }
